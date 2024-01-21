@@ -149,6 +149,37 @@ const unfollowUserCtrl=expressAsyncHandler(async(req,res)=>{
     },{new:true})
     res.json("you have successfully unfollowed this user")
 })
+//---------
+//Block a user
+
+//---------------
+const userBlockCtrl=expressAsyncHandler(async(req,res)=>{
+    const {id}=req.params;
+    validateId(id);
+    const blockUser=await User.findByIdAndUpdate(id,{
+        isBlocked:true
+    },{new:true})
+    res.json(blockUser)
+})
+
+//-----------------
+// unblock user
+//-----------------
+const userUnblockCtrl=expressAsyncHandler(async(req,res)=>{
+    const {id}=req.params;
+    validateId(id);
+    const blockUser=await User.findByIdAndUpdate(id,{
+        isBlocked:false
+    },{new:true})
+    res.json(blockUser)
+})
+/// ----------
+//  profilePhotoUploadCtrl
+//----------------------
+const profilePhotoUploadCtrl=expressAsyncHandler(async(req,res)=>{
+    console.log(req.file);
+    res.json("upload")
+})
 module.exports={userRegisterCtrl,
     userLoginCtrl,
     fetchUsers,
@@ -158,5 +189,8 @@ module.exports={userRegisterCtrl,
     updateProfile,
     updatePasswordCtrl,
     followUserCtrl,
-    unfollowUserCtrl
+    unfollowUserCtrl,
+    userBlockCtrl,
+    userUnblockCtrl,
+    profilePhotoUploadCtrl
 };

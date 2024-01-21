@@ -1,32 +1,47 @@
 const express = require('express');
 const authMiddleware = require('../../middlewares/auth/authMiddleware');
+const {profilePhotoUpload,profilePhotoResize} = require('../../middlewares/uploads/fileUpload');
 const {
     userRegisterCtrl,
     userLoginCtrl,
     fetchUsers,
     deleteUser,
     fetchUser,
-    userProfileCtrl,
+    userProfileCtrl, 
     updateProfile,
     updatePasswordCtrl,
     followUserCtrl,
-    unfollowUserCtrl
+    unfollowUserCtrl,
+    userBlockCtrl,
+    userUnblockCtrl,
+    profilePhotoUploadCtrl
 } = require('../../controllers/user/userCtrl');
 
 const userRouter = express.Router();
 
-userRouter.post("/register", userRegisterCtrl);
+// Authentication-related routes
+userRouter.post('/register', userRegisterCtrl);
 userRouter.post('/login', userLoginCtrl);
 
-//authMiddleware before the route handler that requires authentication
-userRouter.put('/follow', authMiddleware,followUserCtrl);
-userRouter.put('/unfollow',authMiddleware,unfollowUserCtrl)
-userRouter.get('/', authMiddleware, fetchUsers);
-userRouter.get('/:id', fetchUser);
-userRouter.put('/:id',authMiddleware,updateProfile)
-userRouter.get('/profile/:id', authMiddleware, userProfileCtrl);
-userRouter.put('/password/:id',authMiddleware,updatePasswordCtrl)
+// User-related routes with authentication middleware
+userRouter.use(authMiddleware);
 
+userRouter.put('/follow', followUserCtrl);
+userRouter.put('/unfollow', unfollowUserCtrl);
+userRouter.put('/block-user/:id', userBlockCtrl);
+userRouter.put('/unblock-user/:id', userUnblockCtrl);
+userRouter.put(
+    "/upload",
+    authMiddleware,
+    profilePhotoUpload.single("image"),
+    profilePhotoResize,
+    profilePhotoUploadCtrl
+  );
+userRouter.get('/', fetchUsers);
+userRouter.get('/:id', fetchUser);
+userRouter.put('/:id', updateProfile);
+userRouter.get('/profile/:id', userProfileCtrl);
+userRouter.put('/password/:id', updatePasswordCtrl);
 userRouter.delete('/:id', deleteUser);
 
 module.exports = userRouter;
