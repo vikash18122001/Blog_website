@@ -1,6 +1,7 @@
 const express = require('express');
 const authMiddleware = require('../../middlewares/auth/authMiddleware');
-const {profilePhotoUpload,profilePhotoResize} = require('../../middlewares/uploads/fileUpload');
+const {photoUpload,
+  profilePhotoResize,} = require('../../middlewares/uploads/fileUpload');
 const {
     userRegisterCtrl,
     userLoginCtrl,
@@ -33,7 +34,7 @@ userRouter.put('/unblock-user/:id', userUnblockCtrl);
 userRouter.put(
     "/upload",
     authMiddleware,
-    profilePhotoUpload.single("image"),
+    photoUpload.single("image"),
     profilePhotoResize,
     profilePhotoUploadCtrl
   );

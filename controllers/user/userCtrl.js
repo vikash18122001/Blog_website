@@ -2,6 +2,7 @@ const User=require('../../models/user/user');
 const expressAsyncHandler=require('express-async-handler')
 const generateToken=require('../../config/jwt/generateToken');
 const validateId = require('../../utils/validateMongodbId/validateId');
+const cloudinaryUploadImg = require('../../utils/cloudinaryUpload');
 const userRegisterCtrl=expressAsyncHandler(async(req,res)=>{
     const userExist=await User.findOne({email:req.body.email});
         if(userExist)throw new Error('User already exists');
@@ -177,8 +178,15 @@ const userUnblockCtrl=expressAsyncHandler(async(req,res)=>{
 //  profilePhotoUploadCtrl
 //----------------------
 const profilePhotoUploadCtrl=expressAsyncHandler(async(req,res)=>{
-    console.log(req.file);
-    res.json("upload")
+    // 1.Get the path to image
+    const {_id}=req.user;
+
+    const path=`public/images/profile/${req.file.filename}`;
+    const imageUpload=await cloudinaryUploadImg(path);
+    const foundUser=await User.findByIdAndUpdate(_id,{
+        profilePhoto:imageUpload?.url
+    },{new:true})
+    res.json(foundUser)
 })
 module.exports={userRegisterCtrl,
     userLoginCtrl,
